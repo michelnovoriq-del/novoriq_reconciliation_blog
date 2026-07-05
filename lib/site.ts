@@ -2,7 +2,7 @@ export const siteConfig = {
   name: "Novoriq",
   description:
     "CSV/Excel-first reconciliation workflows for accountants and finance teams.",
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://novoriq.com",
+  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://novoriqblog.netlify.app",
   betaUrl:
     "mailto:michelnovoriq@gmail.com?subject=Novoriq%20Private%20Beta",
 };

@@ -28,7 +28,7 @@ npm run start
 
 The main article, its page metadata, FAQ content, and JSON-LD live in `app/blog/reconcile-payment-exports-with-bank-deposits/page.tsx`. Shared site details and the beta email link live in `lib/site.ts`. Reusable page sections are in `components/`.
 
-Set `NEXT_PUBLIC_SITE_URL` to the production origin before deployment if it is not `https://novoriq.com`.
+Set `NEXT_PUBLIC_SITE_URL` to the production origin before deployment if it is not `https://novoriqblog.netlify.app`.
 
 ## Preparing for Google indexing
 
