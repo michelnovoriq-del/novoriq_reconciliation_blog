@@ -1,0 +1,74 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { BlogArticleLayout } from "@/components/BlogArticleLayout";
+import { CTASection } from "@/components/CTASection";
+import { ComparisonTable } from "@/components/ComparisonTable";
+import { ProblemCard } from "@/components/ProblemCard";
+import { WorkflowStep } from "@/components/WorkflowStep";
+import { article, siteConfig } from "@/lib/site";
+import { blogPosts } from "@/lib/blog-posts";
+
+export const metadata: Metadata = {
+  title: { absolute: "How to Reconcile Payment Exports With Bank Deposits | Novoriq" },
+  description: article.description,
+  alternates: { canonical: article.slug },
+  openGraph: { type: "article", title: article.title, description: article.description, url: article.slug, publishedTime: article.publishedAt, authors: ["Novoriq"] },
+  twitter: { card: "summary_large_image", title: article.title, description: article.description },
+};
+
+const faq = [
+  ["What is payment export reconciliation?", "Payment export reconciliation is the process of comparing transaction records from a payment processor with invoices, refunds, fees, and the deposits recorded by a bank. The goal is to explain every difference and document every match."],
+  ["Why do bank deposits not match invoice totals?", "Banks usually show the net amount settled by a processor. The original sale may have been reduced by processing fees, refunds, chargebacks, reserves, or other adjustments, and several sales may be combined into one payout."],
+  ["Can this work with CSV and Excel files?", "Yes. CSV and Excel exports are often the most practical starting point because processors, banks, accounting systems, and client spreadsheets can all be normalized into shared fields before matching."],
+  ["Should reconciliation be fully automated?", "Not when a decision is ambiguous. Clear, rule-based matches can reduce repetitive work, but possible matches, missing records, unusual fees, and duplicates should remain visible for human review."],
+  ["What should accountants review manually?", "Review amount differences, duplicate references, combined payouts, missing invoices, unmatched deposits, date gaps outside the expected settlement window, and any transaction where the source evidence conflicts."],
+];
+
+export default function ReconciliationGuidePage() {
+  const articleSchema = { "@context": "https://schema.org", "@type": "Article", headline: article.title, description: article.description, datePublished: article.publishedAt, dateModified: article.publishedAt, author: { "@type": "Organization", name: "Novoriq" }, publisher: { "@type": "Organization", name: "Novoriq" }, mainEntityOfPage: `${siteConfig.url}${article.slug}` };
+  const faqSchema = { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: faq.map(([name, text]) => ({ "@type": "Question", name, acceptedAnswer: { "@type": "Answer", text } })) };
+  const files = ["Stripe transaction and payout exports", "PayPal activity exports", "Shopify payout exports", "Wise transfer records", "Bank statement CSVs", "Invoice exports", "Accounting software exports", "Client-maintained spreadsheets"];
+  const manual = [
+    ["Collect every source file", "Choose the same reporting period for processor transactions, payouts, invoices, refunds, and bank activity. Keep the original files unchanged."],
+    ["Clean the columns", "Remove decorative headers and blank rows, but preserve source identifiers. Convert dates and amounts into consistent formats."],
+    ["Map comparable fields", "Identify transaction date, settlement date, gross amount, net amount, reference, invoice number, customer, fee, and currency."],
+    ["Compare invoices and deposits", "Start with exact reference and amount matches, then allow a documented settlement-date window. Do not rely on date alone."],
+    ["Account for adjustments", "Rebuild net payouts from gross sales minus fees, refunds, chargebacks, and reserves before treating a difference as an error."],
+    ["Flag unmatched records", "Separate missing deposits, unexplained deposits, unpaid invoices, duplicates, and partial payments instead of forcing a match."],
+    ["Prepare an exception report", "Record the source rows, reason for the exception, amount at risk, owner, and next action for every unresolved item."],
+    ["Export the final report", "Deliver approved matches and open exceptions as clean tables, with enough identifiers for another reviewer to reproduce the result."],
+  ];
+
+  return (
+    <BlogArticleLayout>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema).replace(/</g, "\\u003c") }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema).replace(/</g, "\\u003c") }} />
+
+      <section id="why-files-differ"><p className="text-sm font-bold uppercase tracking-[0.18em] text-deep">The real problem</p><h2 className="mt-3">Why payment exports and bank deposits rarely line up</h2><p className="lead">A sale, an invoice, a processor transaction, a payout, and a bank deposit are different financial events. They may describe the same money, but they are recorded at different times and at different levels of detail.</p><p className="mt-5 text-slate-600">A processor can bundle dozens of payments into one deposit and subtract fees before settlement. Refunds or chargebacks may be applied in a later payout. The bank then records only the net deposit, often with a reference that does not appear in the invoice file. That is why matching gross invoice totals directly to bank lines creates false exceptions.</p><div className="mt-7 grid gap-4 sm:grid-cols-2"><ProblemCard title="Gross sale, net deposit" tone="amber">A $100 invoice might settle as $96.80 after a $3.20 processor fee.</ProblemCard><ProblemCard title="Different timing">A June 1 payment can appear in the June 3 payout and reach the bank on June 4.</ProblemCard><ProblemCard title="Combined payouts">Twenty customer payments may arrive as one bank deposit with one payout reference.</ProblemCard><ProblemCard title="References change" tone="red">Invoice IDs, processor transaction IDs, payout IDs, and bank descriptions may all differ.</ProblemCard></div></section>
+
+      <section><h2>Who this guide is for</h2><p className="lead">This workflow is for bookkeepers, accountants, ecommerce accountants, SaaS accountants, finance operators, fractional CFOs, and small accounting firms who receive financial data as exports rather than clean integrations.</p><div className="mt-6 rounded-2xl border-l-4 border-sky bg-cream p-6"><p className="font-semibold text-ink">It is especially useful when a month-end close depends on a collection of Stripe, PayPal, Shopify, Wise, invoice, bank, and client spreadsheet files.</p></div></section>
+
+      <section id="files"><h2>Common files involved</h2><p className="lead">Create a source register before changing anything. Record each file’s owner, reporting period, currency, export date, and whether it represents a transaction, payout, invoice, or bank event.</p><ul className="mt-7 grid gap-3 sm:grid-cols-2">{files.map((file) => <li key={file} className="flex gap-3 rounded-xl border border-slate-200 p-4 text-slate-700"><span className="font-black text-green-500">✓</span>{file}</li>)}</ul><p className="mt-5 text-sm text-slate-500">Export availability and column names vary by provider. Preserve the original file and work from a copy.</p></section>
+
+      <section id="manual-workflow"><p className="text-sm font-bold uppercase tracking-[0.18em] text-deep">Step by step</p><h2 className="mt-3">A manual bookkeeping reconciliation workflow</h2><p className="lead">The order matters. Standardize the evidence first, match second, and investigate exceptions last.</p><ol className="mt-9">{manual.map(([title, text], i) => <WorkflowStep key={title} number={i + 1} title={title}>{text}</WorkflowStep>)}</ol></section>
+
+      <section id="mistakes"><h2>Where reconciliation mistakes happen</h2><p className="lead">Most errors are not arithmetic problems. They come from comparing fields that look similar but represent different things.</p><div className="mt-7 grid gap-4 sm:grid-cols-2">{[["Wrong date format", "01/06 may mean January 6 or June 1."], ["Missing reference", "A bank description may omit the invoice or transaction ID."], ["Fees hidden in net amounts", "The deposit differs because the processor already deducted costs."], ["Duplicate transactions", "Repeated exports can introduce the same transaction twice."], ["Unmatched deposits", "A deposit exists without a known payout or invoice group."], ["Unpaid invoices", "An invoice is present, but no payment has settled."], ["Combined payouts", "Many sales are incorrectly compared to one deposit row by row."], ["Spreadsheet formula errors", "Ranges drift, rows are excluded, and copied formulas silently change."]].map(([title, text], i) => <ProblemCard key={title} title={title} tone={i % 3 === 0 ? "red" : "amber"}>{text}</ProblemCard>)}</div></section>
+
+      <section id="better-workflow" className="rounded-3xl bg-cream p-7 sm:p-10"><p className="text-sm font-bold uppercase tracking-[0.18em] text-deep">CSV/Excel first</p><h2 className="mt-3">A better workflow keeps the source visible</h2><p className="lead">Novoriq is being built as a CSV/Excel-first reconciliation workflow. The aim is to make normalization and review easier without hiding the records behind a black box.</p><div className="mt-8 flex flex-wrap items-center gap-2 text-sm font-bold">{["Upload files", "Preview columns", "Map fields", "Normalize records", "Match transactions", "Review buckets", "Approve or reject", "Export clean CSV"].map((step, i, arr) => <span key={step} className="contents"><span className="rounded-full bg-white px-4 py-2.5 text-ink shadow-sm">{step}</span>{i < arr.length - 1 && <span className="text-deep">→</span>}</span>)}</div><p className="mt-7 text-slate-600">A reviewer should be able to trace any result back to its original row, see which rule was applied, and reverse a decision before export.</p></section>
+
+      <section id="review-buckets"><h2>Use green, yellow, and red review buckets</h2><p className="lead">Confidence buckets focus attention without pretending every candidate is equally reliable.</p><div className="mt-7 space-y-4"><div className="rounded-2xl border border-green-200 bg-green-50 p-6"><h3 className="font-bold text-green-800">Green = high-confidence match</h3><p className="mt-2 text-slate-600">Key evidence agrees: for example, amount and reference match within an allowed settlement window.</p></div><div className="rounded-2xl border border-amber-200 bg-amber-50 p-6"><h3 className="font-bold text-amber-800">Yellow = possible match requiring review</h3><p className="mt-2 text-slate-600">Some evidence agrees, but a fee, timing difference, partial payment, or reference variation needs a decision.</p></div><div className="rounded-2xl border border-red-200 bg-red-50 p-6"><h3 className="font-bold text-red-800">Red = unmatched or unsafe</h3><p className="mt-2 text-slate-600">Evidence is missing, contradictory, duplicated, or outside the permitted rules. Do not force the match.</p></div></div><p className="mt-6 font-semibold text-ink">Humans stay in control: the reviewer approves, rejects, or documents each uncertain result.</p></section>
+
+      <section id="deterministic"><h2>Why deterministic matching matters</h2><p className="lead">Finance teams need matching that is auditable, repeatable, and explainable. If the same records and rules are run twice, they should produce the same candidates and the same reasons.</p><p className="mt-5 text-slate-600">Useful rules can include exact reference equality, exact currency and amount equality, an approved date window, or a known fee tolerance. Their order and thresholds should be visible. Any later explanation layer should describe the evidence, not invent a match.</p><blockquote className="mt-7 rounded-2xl bg-ink p-7 text-2xl font-bold leading-snug text-white">“Rules match. Humans approve. AI can explain exceptions later.”</blockquote></section>
+
+      <section id="example"><h2>A practical reconciliation example</h2><p className="lead">Consider two invoice-to-deposit comparisons. The first has strong evidence. The second needs review rather than automatic approval.</p><div className="mt-7"><ComparisonTable /></div><div className="mt-6 space-y-4 text-slate-600"><p><strong>INV-001:</strong> The $100.00 amount and reference both match. A one-day difference is within the expected settlement window, so this is a green match.</p><p><strong>INV-003:</strong> The reference matches, but the bank received $72.50 against a $75.50 invoice. This is a yellow possible match because the $3.00 difference may be a platform fee. Confirm the processor fee record before approval.</p></div></section>
+
+      <section><CTASection compact /></section>
+
+      <section id="related-guides"><p className="text-sm font-bold uppercase tracking-[0.18em] text-deep">Build the full workflow</p><h2 className="mt-3">Related reconciliation guides</h2><p className="lead">Use these supporting guides to investigate payout differences, standardize bookkeeping files, allocate invoice payments, and document unresolved records.</p><div className="mt-7 grid gap-4 sm:grid-cols-2">{blogPosts.slice(1).map((post) => <Link key={post.href} href={post.href} className="rounded-2xl border border-slate-200 p-5 transition hover:border-sky hover:bg-sky-50"><span className="text-xs font-bold uppercase tracking-wider text-deep">{post.category}</span><h3 className="mt-2 font-bold leading-snug text-ink">{post.title}</h3><span className="mt-3 inline-block text-sm font-semibold text-deep">Read guide →</span></Link>)}</div></section>
+
+      <section id="faq"><p className="text-sm font-bold uppercase tracking-[0.18em] text-deep">Frequently asked questions</p><h2 className="mt-3">Payment export reconciliation FAQ</h2><div className="mt-8 divide-y divide-slate-200 border-y border-slate-200">{faq.map(([question, answer]) => <details key={question} className="group py-5"><summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-bold text-ink"><span>{question}</span><span className="text-xl text-deep group-open:rotate-45">+</span></summary><p className="mt-3 pr-8 text-slate-600">{answer}</p></details>)}</div></section>
+
+      <section className="mb-0 text-center"><h2>Ready to make the next messy export reviewable?</h2><p className="lead mx-auto max-w-xl">Help shape a practical reconciliation workflow built around the files finance teams already receive.</p><a href={siteConfig.betaUrl} className="mt-7 inline-flex rounded-full bg-deep px-7 py-3.5 font-bold text-white transition hover:bg-ink">Join the Novoriq private beta</a></section>
+    </BlogArticleLayout>
+  );
+}

@@ -1,0 +1,12 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { blogPosts } from "@/lib/blog-posts";
+
+export const metadata: Metadata = { title: "Reconciliation Guides", description: "Practical CSV and Excel reconciliation guides for accountants, bookkeepers, and finance teams." };
+
+export default function BlogIndexPage() {
+  const [featuredPost, ...supportingPosts] = blogPosts;
+  return (
+    <div className="bg-cream"><section className="mx-auto max-w-6xl px-5 py-20 sm:px-8"><p className="text-sm font-bold uppercase tracking-[0.2em] text-deep">Novoriq guides</p><h1 className="mt-4 text-5xl font-black tracking-tight text-ink sm:text-6xl">Practical reconciliation,<br />explained clearly.</h1><p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">Field guides for turning payment exports, invoices, refunds, fees, and bank deposits into records you can review and explain.</p><div className="mt-14"><Link href={featuredPost.href} className="group grid overflow-hidden rounded-3xl bg-white shadow-soft md:grid-cols-[.8fr_1.2fr]"><div className="grid min-h-64 place-items-center bg-sky p-8"><div className="w-full max-w-xs rounded-2xl bg-white/15 p-5 text-white"><div className="h-2 w-20 rounded bg-white/50" /><div className="mt-6 space-y-3"><div className="h-12 rounded-xl bg-white/15" /><div className="h-12 rounded-xl bg-white/15" /><div className="h-12 rounded-xl bg-white/15" /></div></div></div><div className="p-8 sm:p-12"><p className="text-sm font-bold uppercase tracking-wider text-deep">{featuredPost.category} · {featuredPost.readingTime}</p><h2 className="mt-4 text-3xl font-black leading-tight tracking-tight text-ink group-hover:text-deep">{featuredPost.title}</h2><p className="mt-4 leading-7 text-slate-600">{featuredPost.description}</p><span className="mt-8 inline-block font-bold text-deep">Read guide →</span></div></Link></div><div className="mt-8 grid gap-6 md:grid-cols-2">{supportingPosts.map((post) => <Link key={post.href} href={post.href} className="group rounded-3xl bg-white p-7 shadow-soft transition hover:-translate-y-0.5"><p className="text-xs font-bold uppercase tracking-wider text-deep">{post.category} · {post.readingTime}</p><h2 className="mt-4 text-2xl font-black leading-tight tracking-tight text-ink group-hover:text-deep">{post.title}</h2><p className="mt-4 leading-7 text-slate-600">{post.description}</p><span className="mt-6 inline-block font-bold text-deep">Read guide →</span></Link>)}</div></section></div>
+  );
+}
